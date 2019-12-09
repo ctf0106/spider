@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>data</artifactId>
     <name>data</name>
+    <packaging>jar</packaging>
     <url>http://www.example.com</url>
 
     <dependencies>
@@ -23,12 +24,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.47</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>sharding-jdbc-core</artifactId>
-            <version>4.0.0-RC3</version>
-        </dependency>
-
     </dependencies>
 
     <build>

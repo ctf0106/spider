@@ -1,6 +1,5 @@
-package com.zpcampus.crawler.platform.dataaccess;
+package com.zhaopin.build;
 
-import com.zhaopin.build.BuildTableName;
 import com.zhaopin.config.DynamicDbConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.io.Resources;
@@ -17,50 +16,18 @@ public class DataBaseFactory {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 			.getLogger(DataBaseFactory.class);
 
-	private final static String newDataBaseSql = readFile("NewDataBase.sql");
-	private final static String dropDataBaseSql = readFile("DropDataBase.sql");
-	private final static String fetchConfigSql = readFile("FetchConfig.sql");
-	private final static String fetchQueueNamePoolsSql = readFile("FetchQueueNamePools.sql");
-	private final static String fetchPageAndHtmlTotalSql = readFile("FetchPageAndHtmlTotal.sql");
-	private final static String pageInfoSql = readFile("PageInfo.sql");
-	private final static String htmlInfoSql = readFile("HtmlInfo.sql");
-	private final static String jobInfoSql = readFile("JobInfo.sql");
+	private final static String newDataBaseSql = readFile("sql/create_database.sql");
+	private final static String dropDataBaseSql = readFile("sql/drop_database.sql");
+	private final static String spiderDetail = readFile("sql/spider_detail.sql");
+	private final static String spiderList = readFile("sql/spider_list.sql");
 
 	private DynamicDbConfig config = null;
 	private String mysqlUrl = "jdbc:mysql://{dbServerIp}:{dbPort}/";
 
-	public static void main(String[] args) {
-
-	}
-
 	public void createCrawlerDB() {
 		buildDataBase();
-		buildTable(fetchConfigSql);
-		buildTable(fetchQueueNamePoolsSql);
-		buildTable(fetchPageAndHtmlTotalSql);
-		buildTable(pageInfoSql);
-		for (int i = 0; i < 10; i++) {
-			buildTable(htmlInfoSql.replace("{HtmlInfoName}",
-					BuildTableName.getTabName(i)));
-		}
-		buildTable(jobInfoSql);
-	}
-
-	public void createCrawlerDB(String customSqlFileName) {
-		createCrawlerDB();
-		createCustomDB(customSqlFileName);
-	}
-
-	public void createCustomDB(String customSqlFileName) {
-		try {
-			String customSql = readFile(customSqlFileName);
-			if (StringUtils.isNotBlank(customSql)) {
-				buildTable(customSql);
-			}
-		} catch (Exception ex) {
-			logger.error(
-					"DataBaseFactory.createCustomDB exec customSql error!", ex);
-		}
+		buildTable(spiderList);
+		buildTable(spiderDetail);
 	}
 
 	public DataBaseFactory(DynamicDbConfig config) throws Exception {
@@ -70,8 +37,7 @@ public class DataBaseFactory {
 					config.getDbServerIp()).replace("{dbPort}",
 					config.getDbPort());
 		} else {
-			throw new Exception(
-					"DataBaseFactory.init:DynamicDbConfig config is null!");
+			throw new Exception("DataBaseFactory.init:DynamicDbConfig config is null!");
 		}
 	}
 
@@ -85,8 +51,7 @@ public class DataBaseFactory {
 		try {
 			Class.forName(this.config.getDbDriver());
 		} catch (ClassNotFoundException ex) {
-			logger.error("CreateDataBase.buildDataBase getDbDriver is error!",
-					ex);
+			logger.error("buildDataBase getDbDriver is error!", ex);
 			return false;
 		}
 		try {
@@ -96,12 +61,10 @@ public class DataBaseFactory {
 					this.config.getDbUserName(), this.config.getDbPassword());
 			Statement smt = conn.createStatement();
 			if (conn != null) {
-				System.out.println("数据库连接成功!");
 				smt.executeUpdate(databaseSql);
 			}
 		} catch (SQLException ex) {
-			logger.error("CreateDataBase.buildDataBase execute sql is error!",
-					ex);
+			logger.error("DataBaseFactory.buildDataBase execute sql is error!", ex);
 			return false;
 		} finally {
 			try {
@@ -109,8 +72,7 @@ public class DataBaseFactory {
 					conn.close();
 				}
 			} catch (SQLException e) {
-				logger.error(
-						"CreateDataBase.buildDataBase close  conn is error!", e);
+				logger.error("DataBaseFactory.buildDataBase close  conn is error!", e);
 			}
 		}
 		return true;
@@ -126,8 +88,7 @@ public class DataBaseFactory {
 		try {
 			Class.forName(this.config.getDbDriver());
 		} catch (ClassNotFoundException ex) {
-			logger.error("CreateDataBase.dropDataBase getDbDriver is error!",
-					ex);
+			logger.error("dropDataBase getDbDriver is error!", ex);
 			return false;
 		}
 		try {
@@ -137,12 +98,10 @@ public class DataBaseFactory {
 					this.config.getDbUserName(), this.config.getDbPassword());
 			Statement smt = conn.createStatement();
 			if (conn != null) {
-				System.out.println("数据库连接成功!");
 				smt.executeUpdate(databaseSql);
 			}
 		} catch (SQLException ex) {
-			logger.error("CreateDataBase.dropDataBase execute sql is error!",
-					ex);
+			logger.error("删除数据库异常!", ex);
 			return false;
 		} finally {
 			try {
@@ -150,8 +109,7 @@ public class DataBaseFactory {
 					conn.close();
 				}
 			} catch (SQLException e) {
-				logger.error(
-						"CreateDataBase.buildDataBase close  conn is error!", e);
+				logger.error("删除数据库，连接异常", e);
 			}
 		}
 		return true;
@@ -168,7 +126,7 @@ public class DataBaseFactory {
 		try {
 			Class.forName(this.config.getDbDriver());
 		} catch (ClassNotFoundException ex) {
-			logger.error("CreateDataBase.buildTable getDbDriver is error!", ex);
+			logger.error("加载数据库驱动异常......", ex);
 			return false;
 		}
 		try {
@@ -185,7 +143,7 @@ public class DataBaseFactory {
 				smt.executeBatch();
 			}
 		} catch (SQLException ex) {
-			logger.error("CreateDataBase.buildTable execute sql is error!", ex);
+			logger.error("创建表单执行sql异常!", ex);
 			return false;
 		} finally {
 			try {
@@ -193,7 +151,7 @@ public class DataBaseFactory {
 					conn.close();
 				}
 			} catch (SQLException e) {
-				logger.error("CreateDataBase.buildTable close  conn is error!",
+				logger.error("创建数表连接异常!",
 						e);
 			}
 		}
@@ -204,7 +162,6 @@ public class DataBaseFactory {
 		if (DataBaseFactory.class.getClassLoader().getResource(fileName) == null) {
 			return "";
 		}
-
 		BufferedReader reader = null;
 		String content = "";
 		try {

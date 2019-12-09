@@ -4,10 +4,10 @@ public class DynamicDbConfig {
 
 	private String environment = "dynamic";
 	private String dbName = "crawler";
-	private String dbServerIp = "175.63.101.104";
+	private String dbServerIp = "127.0.0.1";
 	private String dbPort = "3306";
 	private String dbUserName = "root";
-	private String dbPassword = "crawler@123";
+	private String dbPassword = "root";
 	private String transactionType = "MANAGED";
 	private String dataSourceType = "POOLED";
 	private String dbDriver = "com.mysql.jdbc.Driver";
